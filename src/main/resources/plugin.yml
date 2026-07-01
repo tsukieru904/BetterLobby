@@ -1,0 +1,34 @@
+name: BetterLobby
+main: net.xtte.betterlobby.BetterLobby
+version: '1.0.0'
+api-version: '26.1.2'
+author: xtte
+description: 支援跨分流同步的 Lobby 傳送插件
+
+commands:
+  lobby:
+    description: 傳送至 Lobby
+    usage: /<command> [名稱]
+    permission: betterlobby.use
+  setlobby:
+    description: 設定 Lobby 位置於目前所在處
+    usage: /<command> [名稱]
+    permission: betterlobby.setlobby
+  betterlobby:
+    description: BetterLobby 管理指令
+    usage: /<command> reload
+    permission: betterlobby.reload
+
+permissions:
+  betterlobby.use:
+    description: 允許使用 /lobby 傳送
+    default: true
+  betterlobby.setlobby:
+    description: 允許使用 /setlobby 設定 Lobby
+    default: op
+  betterlobby.reload:
+    description: 允許重載設定檔與語言檔
+    default: op
+  betterlobby.bypass:
+    description: 傳送倒數時不受移動/受傷取消影響
+    default: op

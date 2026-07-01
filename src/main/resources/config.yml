@@ -1,0 +1,77 @@
+# =========================================
+#   BetterLobby 設定檔
+# =========================================
+
+# 目前這台伺服器在 Velocity 代理設定 (velocity.toml [servers]) 中登記的名稱
+# 這個名稱用來判斷 Lobby 是否設定在「這台」伺服器上
+server-name: "lobby-1"
+
+# -----------------------------------------
+# 資料庫設定
+# -----------------------------------------
+storage:
+  # 儲存方式: sqlite 或 mysql
+  # sqlite: 僅本機儲存，Lobby 資料不會跨伺服器同步
+  # mysql : 可跨伺服器同步 Lobby 位置，適合多台分流共用同一顆 Lobby
+  type: sqlite
+
+  # storage.type 為 mysql 時才需要設定以下內容
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: betterlobby
+    username: root
+    password: ""
+    useSSL: false
+    # 連線池大小
+    pool-size: 10
+    # 同伺服器間 Lobby 快取多久重新整理一次 (秒)，僅 mysql 模式生效
+    sync-interval-seconds: 30
+
+# -----------------------------------------
+# 傳送設定
+# -----------------------------------------
+teleport:
+  # 傳送延遲秒數，0 = 立即傳送 (不會有倒數、音效、粒子效果)
+  delay: 5
+
+  # 倒數期間移動是否取消傳送
+  cancel-on-move: true
+
+  # 倒數期間受到攻擊是否取消傳送
+  cancel-on-damage: true
+
+  # 倒數期間是否讓玩家無敵 (不會受到任何傷害)，與 cancel-on-damage 可搭配使用
+  # 若為 true，倒數期間玩家不會被打死，也不會觸發 cancel-on-damage
+  invulnerable-during-teleport: false
+
+  # 倒數期間的動態畫面 (Action Bar) 是否啟用
+  actionbar-countdown: true
+
+  # 倒數期間每秒的音效 (delay 為 0 時不會播放)
+  countdown-sound:
+    enabled: true
+    sound: "UI_BUTTON_CLICK"
+    volume: 1.0
+    pitch: 1.0
+
+  # 倒數期間環繞玩家的粒子效果 (delay 為 0 時不會播放)
+  countdown-particle:
+    enabled: true
+    particle: "PORTAL"
+    # 每次 tick 產生的粒子數量
+    count: 15
+    offset-x: 0.5
+    offset-y: 1.0
+    offset-z: 0.5
+    speed: 0.02
+
+  # 傳送成功瞬間播放的音效
+  teleport-sound:
+    enabled: true
+    sound: "ENTITY_ENDERMAN_TELEPORT"
+    volume: 1.0
+    pitch: 1.0
+
+# 沒有指定名稱時 (/lobby、/setlobby)，預設使用的 Lobby 名稱
+default-lobby: "main"

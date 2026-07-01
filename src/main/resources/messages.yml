@@ -1,0 +1,33 @@
+# =========================================
+#   BetterLobby 語言檔
+#   支援 & 色碼
+#   {prefix} 代表 prefix 欄位內容，可自由留在訊息中或移除
+# =========================================
+
+prefix: "&8[&dBetterLobby&8] &r"
+
+general:
+  no-permission: "{prefix}&c你沒有權限執行此指令！"
+  player-only: "{prefix}&c此指令只能由玩家執行！"
+  reload-success: "{prefix}&a設定檔與語言檔已重新載入！"
+  unknown-error: "{prefix}&c發生未知錯誤，請聯絡管理員！"
+
+lobby:
+  usage: "{prefix}&c用法: /lobby [名稱]"
+  not-found: "{prefix}&c找不到名為 &f{lobby} &c的 Lobby！"
+  already-there: "{prefix}&e你已經在 &f{lobby} &e了！"
+  list-header: "{prefix}&d可用的 Lobby 列表："
+  list-entry: "&7 - &f{lobby} &7(&f{server}&7)"
+
+setlobby:
+  usage: "{prefix}&c用法: /setlobby [名稱]"
+  success: "{prefix}&a已將 Lobby &f{lobby} &a設定在目前位置！"
+
+teleport:
+  countdown: "{prefix}&e傳送中 &f{seconds}"
+  cancelled-move: "{prefix}&c你移動了，傳送已取消！"
+  cancelled-damage: "{prefix}&c你受到攻擊，傳送已取消！"
+  cancelled-disconnect: "{prefix}&c傳送已取消！"
+  success: "{prefix}&a已傳送至 &f{lobby}&a！"
+  connecting: "{prefix}&e正在連接到伺服器 &f{server} &e..."
+  already-teleporting: "{prefix}&c你已經在傳送中了！"
