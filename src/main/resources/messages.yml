@@ -13,15 +13,13 @@ general:
   unknown-error: "{prefix}&c發生未知錯誤，請聯絡管理員！"
 
 lobby:
-  usage: "{prefix}&c用法: /lobby [名稱]"
-  not-found: "{prefix}&c找不到名為 &f{lobby} &c的 Lobby！"
-  already-there: "{prefix}&e你已經在 &f{lobby} &e了！"
-  list-header: "{prefix}&d可用的 Lobby 列表："
-  list-entry: "&7 - &f{lobby} &7(&f{server}&7)"
+  usage: "{prefix}&c用法: /lobby"
+  not-found: "{prefix}&c找不到已設定的 Lobby！"
+  already-there: "{prefix}&e你已經在 Lobby 了！"
 
 setlobby:
-  usage: "{prefix}&c用法: /setlobby [名稱]"
-  success: "{prefix}&a已將 Lobby &f{lobby} &a設定在目前位置！"
+  usage: "{prefix}&c用法: /setlobby"
+  success: "{prefix}&a已將 Lobby 設定在目前位置！"
 
 teleport:
   countdown: "{prefix}&e傳送中 &f{seconds}"

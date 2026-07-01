@@ -93,7 +93,7 @@ public class MySQLStorage implements StorageManager {
     }
 
     @Override
-    public void saveLobby(String name, String server, TeleportPoint point) throws Exception {
+    public void saveDefaultLobby(String server, TeleportPoint point) throws Exception {
         String sql = """
                 INSERT INTO betterlobby_lobbies (name, server, world, x, y, z, yaw, pitch)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -108,7 +108,7 @@ public class MySQLStorage implements StorageManager {
                 """;
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, name);
+            ps.setString(1, "default");
             ps.setString(2, server);
             ps.setString(3, point.world());
             ps.setDouble(4, point.x());
@@ -121,11 +121,11 @@ public class MySQLStorage implements StorageManager {
     }
 
     @Override
-    public Optional<LobbyLocation> getLobby(String name) throws Exception {
+    public Optional<LobbyLocation> getDefaultLobby() throws Exception {
         String sql = "SELECT * FROM betterlobby_lobbies WHERE name = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, name);
+            ps.setString(1, "default");
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(mapRow(rs));
@@ -133,20 +133,6 @@ public class MySQLStorage implements StorageManager {
             }
         }
         return Optional.empty();
-    }
-
-    @Override
-    public List<LobbyLocation> getAllLobbies() throws Exception {
-        List<LobbyLocation> list = new ArrayList<>();
-        String sql = "SELECT * FROM betterlobby_lobbies";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
-        }
-        return list;
     }
 
     @Override

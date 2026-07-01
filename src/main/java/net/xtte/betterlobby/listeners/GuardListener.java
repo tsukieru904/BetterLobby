@@ -29,10 +29,8 @@ public class GuardListener implements Listener {
         if (!plugin.getConfigManager().isCancelOnMove()) return;
         if (player.hasPermission("betterlobby.bypass")) return;
 
-        // 忽略僅視角轉動、未實際移動方塊座標的情況
-        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
-                && event.getFrom().getBlockY() == event.getTo().getBlockY()
-                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+        // 只忽略純視角旋轉，不忽略實際位移
+        if (event.getFrom().distanceSquared(event.getTo()) < 0.0001) {
             return;
         }
 

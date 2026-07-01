@@ -8,11 +8,11 @@ description: 支援跨分流同步的 Lobby 傳送插件
 commands:
   lobby:
     description: 傳送至 Lobby
-    usage: /<command> [名稱]
+    usage: /<command>
     permission: betterlobby.use
   setlobby:
     description: 設定 Lobby 位置於目前所在處
-    usage: /<command> [名稱]
+    usage: /<command>
     permission: betterlobby.setlobby
   betterlobby:
     description: BetterLobby 管理指令
@@ -31,4 +31,4 @@ permissions:
     default: op
   betterlobby.bypass:
     description: 傳送倒數時不受移動/受傷取消影響
-    default: op
+    default: false

@@ -1,50 +1,131 @@
 # BetterLobby
 
-支援跨分流同步的 Lobby 傳送插件，適用於 Purpur 26.1.2（Velocity 代理網路）。
+BetterLobby 是一個支援跨分流同步的 Lobby 傳送插件，適用於 Purpur 26.1.2 與 Velocity 代理架構。
 
-## ⚠️ 重要：本專案尚未實際編譯測試
+## 主要功能
 
-目前的沙盒環境沒有網路連線，無法執行 `mvn package` 下載相依套件並實際編譯驗證，
-所有程式碼皆依據 Paper/Purpur 26.1.x 官方 API 手寫完成，邏輯與語法都已仔細檢查過，
-但你在自己的環境編譯時，**請務必先跑一次 `mvn clean package` 確認沒有編譯錯誤**，
-如果遇到 API 名稱因版本更新而略有差異的狀況，麻煩把錯誤訊息貼給我，我會馬上修正。
+- **單一 Lobby 模式**：只支援一個預設 Lobby，不需要指定名稱。
+- `/setlobby`：將當前所在位置設為唯一 Lobby。
+- `/lobby`：傳送到該預設 Lobby。
+- MySQL 模式可讓多台伺服器共用同一組 Lobby 設定。
+- 支援跨伺服器傳送與待處理傳送紀錄。
 
-## 編譯方式
+## 要求
 
-需要 JDK 25（因應 Minecraft 26.1.x 的 class 檔版本需求）以及網路連線（下載 Purpur API 與相依套件）。
+- Purpur 26.1.2
+- Java 25
+- Velocity 代理，伺服器名稱必須與 `velocity.toml` 的 `[servers]` 名稱一致
+
+## 快速安裝
+
+1. 編譯插件：
 
 ```bash
 mvn clean package
 ```
 
-打包完成後，jar 檔會在 `target/BetterLobby-1.0.0.jar`，把它放進兩台後端伺服器的 `plugins/` 資料夾即可。
+2. 取得 jar：
 
-## 安裝與設定重點
+`target/BetterLobby-1.0.0.jar`
 
-1. **每台伺服器都要裝這個插件**，並且在各自的 `config.yml` 把 `server-name` 改成該伺服器
-   在 Velocity `velocity.toml` 的 `[servers]` 區塊中登記的名稱（例如 `lobby-1`、`survival` 等）。
-2. 若要讓兩台伺服器共用同一顆 Lobby：
-   - 兩台伺服器的 `storage.type` 都改成 `mysql`
-   - 指向**同一組** MySQL 資料庫設定
-   - 在其中一台用 `/setlobby` 設定好座標後，另一台會在 `sync-interval-seconds`
-     設定的秒數內自動同步到該筆 Lobby 資料
-3. 跨伺服器傳送是透過 `BungeeCord` 舊版插件訊息頻道呼叫 Velocity 的玩家轉移功能，
-   **不需要**在 Velocity 額外裝插件，但要確認 Velocity 沒有停用該相容頻道
-   （`velocity.toml` 裡通常不需要特別設定，預設就相容）。
+3. 將 jar 放到每個後端伺服器的 `plugins/` 資料夾。
+
+4. 設定每台伺服器的 `config.yml`：
+   - `server-name` 改為該伺服器在 Velocity 的名稱
+   - 若要共用 Lobby，將 `storage.type` 設為 `mysql`，並使用相同的 MySQL 資料庫設定
+
+## 功能說明
+
+### 單一 Lobby
+
+這個插件不再支援 `/lobby 名稱` 或 `/setlobby 名稱`。
+目前的使用方式是：
+
+- `/setlobby`：設定當前位置為伺服器的 Lobby
+- `/lobby`：傳送到目前設定好的 Lobby
+
+也就是一個伺服器只會有一個 Lobby 設定，沒有多個 Lobby 名稱管理。
+
+### MySQL 共享 Lobby
+
+如果兩台或多台伺服器使用相同 MySQL 資料庫：
+
+- 其中一台使用 `/setlobby` 設定位置
+- 其他伺服器會依照 `storage.mysql.sync-interval-seconds` 週期同步最新 Lobby
+- 這樣就可以讓分流伺服器共用同一個 Lobby
+
+### SQLite
+
+SQLite 模式只儲存本機資料，**無法跨伺服器同步**。
+如果你需要多台伺服器共用 Lobby，請使用 MySQL。
 
 ## 指令與權限
 
 | 指令 | 說明 | 權限 |
 |---|---|---|
-| `/lobby [名稱]` | 傳送到指定 Lobby（省略則用 `default-lobby`） | `betterlobby.use`（預設所有人） |
-| `/setlobby [名稱]` | 將目前位置設為 Lobby | `betterlobby.setlobby`（預設 OP） |
-| `/betterlobby reload` | 重載 config.yml 與 messages.yml | `betterlobby.reload`（預設 OP） |
+| `/lobby` | 傳送到已設定的 Lobby | `betterlobby.use`（預設 true） |
+| `/setlobby` | 設定目前位置為 Lobby | `betterlobby.setlobby`（預設 op） |
+| `/betterlobby reload` | 重新載入設定檔與語言檔 | `betterlobby.reload`（預設 op） |
 
-另有 `betterlobby.bypass` 權限，持有者在傳送倒數期間不受移動/受傷取消影響（預設 OP）。
+### 進階權限
 
-## 已知限制
+- `betterlobby.bypass`：持有者在倒數期間不會因為移動或受到攻擊而取消傳送，預設為 `false`。
 
-- SQLite 模式下 Lobby 資料僅存在本機，無法跨伺服器同步（這是設計上的取捨，非 bug）。
-- 跨伺服器傳送當下不會有第二次倒數／粒子效果，玩家會直接被丟到目標伺服器上設定好的座標，
-  這是為了避免玩家在切換伺服器的瞬間看到奇怪的中斷畫面。
-- `teleport.delay: 0` 時，不會顯示倒數、不會播放倒數音效與粒子效果，直接傳送（符合你的需求）。
+## 主要設定項目
+
+```yaml
+server-name: "lobby-1"
+
+storage:
+  type: sqlite
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: betterlobby
+    username: root
+    password: ""
+    useSSL: false
+    pool-size: 10
+    sync-interval-seconds: 30
+
+teleport:
+  delay: 5
+  cancel-on-move: true
+  cancel-on-damage: true
+  invulnerable-during-teleport: false
+  actionbar-countdown: true
+  countdown-sound:
+    enabled: true
+    sound: "UI_BUTTON_CLICK"
+    volume: 1.0
+    pitch: 1.0
+  countdown-particle:
+    enabled: true
+    particle: "PORTAL"
+    count: 15
+    offset-x: 0.5
+    offset-y: 1.0
+    offset-z: 0.5
+    speed: 0.02
+  teleport-sound:
+    enabled: true
+    sound: "ENTITY_ENDERMAN_TELEPORT"
+    volume: 1.0
+    pitch: 1.0
+
+default-lobby: "main"
+```
+
+### 傳送行為
+
+- `delay: 0`：立即傳送，無倒數、無音效、無粒子
+- `cancel-on-move: true`：倒數期間移動會取消傳送
+- `cancel-on-damage: true`：倒數期間受到攻擊會取消傳送
+- `invulnerable-during-teleport: true`：倒數期間玩家無敵，不會被攻擊取消
+
+## 其他說明
+
+- 插件透過內建的 JDBC driver 來支援 SQLite / MySQL，因此 jar 檔較大。
+- 目前支援的跨伺服器傳送機制，是從伺服器端透過代理連線玩家，無需在 Velocity 安裝額外插件。
+- 如果你只需要單機伺服器，建議使用 `sqlite`。
+- 如果要多伺服器共用 Lobby，請使用 `mysql` 並確保所有伺服器指向相同資料庫。

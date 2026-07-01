@@ -16,9 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,7 +26,7 @@ public final class BetterLobby extends JavaPlugin {
     private BungeeMessenger bungeeMessenger;
     private TeleportManager teleportManager;
 
-    private final Map<String, LobbyLocation> lobbyCache = new ConcurrentHashMap<>();
+    private LobbyLocation defaultLobby;
     private ExecutorService dbExecutor;
     private BukkitTask syncTask;
 
@@ -50,7 +47,7 @@ public final class BetterLobby extends JavaPlugin {
             return;
         }
 
-        loadLobbyCacheSync();
+        loadDefaultLobbySync();
 
         bungeeMessenger = new BungeeMessenger(this);
         bungeeMessenger.register();
@@ -59,7 +56,6 @@ public final class BetterLobby extends JavaPlugin {
 
         LobbyCommand lobbyCommand = new LobbyCommand(this);
         getCommand("lobby").setExecutor(lobbyCommand);
-        getCommand("lobby").setTabCompleter(lobbyCommand);
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this));
         getCommand("betterlobby").setExecutor(new BetterLobbyCommand(this));
 
@@ -103,7 +99,7 @@ public final class BetterLobby extends JavaPlugin {
             storageManager.close();
         }
         initStorage();
-        loadLobbyCacheSync();
+        loadDefaultLobbySync();
         startSyncTaskIfNeeded();
     }
 
@@ -132,38 +128,25 @@ public final class BetterLobby extends JavaPlugin {
         }
     }
 
-    private void loadLobbyCacheSync() {
-        lobbyCache.clear();
+    private void loadDefaultLobbySync() {
         try {
-            List<LobbyLocation> all = storageManager.getAllLobbies();
-            for (LobbyLocation lobby : all) {
-                lobbyCache.put(lobby.getName().toLowerCase(), lobby);
-            }
-            getLogger().info("已載入 " + all.size() + " 筆 Lobby 資料。");
+            storageManager.getDefaultLobby().ifPresentOrElse(
+                    this::setDefaultLobby,
+                    () -> getLogger().warning("未找到預設 Lobby，請使用 /setlobby 設定。")
+            );
         } catch (Exception e) {
-            getLogger().warning("載入 Lobby 快取失敗: " + e.getMessage());
+            getLogger().warning("載入預設 Lobby 失敗: " + e.getMessage());
         }
     }
 
-    /** 定期從資料庫重新整理 Lobby 快取，僅 MySQL 模式下需要 (讓其他伺服器新增/修改的 Lobby 能同步過來) */
+    /** 定期從資料庫重新整理預設 Lobby，僅 MySQL 模式下需要 */
     private void startSyncTaskIfNeeded() {
         if (!"mysql".equalsIgnoreCase(configManager.getStorageType())) {
             return;
         }
         long intervalTicks = Math.max(20L, configManager.getSyncIntervalSeconds() * 20L);
-        syncTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            try {
-                List<LobbyLocation> all = storageManager.getAllLobbies();
-                Map<String, LobbyLocation> updated = new ConcurrentHashMap<>();
-                for (LobbyLocation lobby : all) {
-                    updated.put(lobby.getName().toLowerCase(), lobby);
-                }
-                lobbyCache.clear();
-                lobbyCache.putAll(updated);
-            } catch (Exception e) {
-                getLogger().warning("同步 Lobby 快取失敗: " + e.getMessage());
-            }
-        }, intervalTicks, intervalTicks);
+        syncTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this, this::loadDefaultLobbySync,
+                intervalTicks, intervalTicks);
     }
 
     // ---------------- Getters ----------------
@@ -184,8 +167,12 @@ public final class BetterLobby extends JavaPlugin {
         return teleportManager;
     }
 
-    public Map<String, LobbyLocation> getLobbyCache() {
-        return lobbyCache;
+    public LobbyLocation getDefaultLobby() {
+        return defaultLobby;
+    }
+
+    public void setDefaultLobby(LobbyLocation defaultLobby) {
+        this.defaultLobby = defaultLobby;
     }
 
     public ExecutorService getDbExecutor() {

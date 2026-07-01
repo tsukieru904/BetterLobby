@@ -20,14 +20,11 @@ public interface StorageManager {
     /** 關閉連線 */
     void close();
 
-    /** 新增或更新 Lobby 資料 */
-    void saveLobby(String name, String server, TeleportPoint point) throws Exception;
+    /** 新增或更新預設 Lobby 資料 */
+    void saveDefaultLobby(String server, TeleportPoint point) throws Exception;
 
-    /** 依名稱取得 Lobby 資料 */
-    Optional<LobbyLocation> getLobby(String name) throws Exception;
-
-    /** 取得所有 Lobby 名稱 */
-    List<LobbyLocation> getAllLobbies() throws Exception;
+    /** 取得預設 Lobby 資料 */
+    Optional<LobbyLocation> getDefaultLobby() throws Exception;
 
     /**
      * 新增一筆待處理的跨伺服器傳送紀錄。

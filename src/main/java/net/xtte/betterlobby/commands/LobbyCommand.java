@@ -6,14 +6,9 @@ import net.xtte.betterlobby.util.MessageUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-public class LobbyCommand implements CommandExecutor, TabCompleter {
+public class LobbyCommand implements CommandExecutor {
 
     private final BetterLobby plugin;
 
@@ -33,27 +28,13 @@ public class LobbyCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        String lobbyName = args.length >= 1 ? args[0] : plugin.getConfigManager().getDefaultLobby();
-
-        LobbyLocation lobby = plugin.getLobbyCache().get(lobbyName.toLowerCase());
+        LobbyLocation lobby = plugin.getDefaultLobby();
         if (lobby == null) {
-            MessageUtil.send(player, plugin.getConfigManager().get("lobby.not-found",
-                    Map.of("lobby", lobbyName)));
+            MessageUtil.send(player, plugin.getConfigManager().get("lobby.not-found"));
             return true;
         }
 
         plugin.getTeleportManager().startTeleport(player, lobby);
         return true;
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length == 1) {
-            String prefix = args[0].toLowerCase();
-            return plugin.getLobbyCache().keySet().stream()
-                    .filter(name -> name.startsWith(prefix))
-                    .collect(Collectors.toList());
-        }
-        return List.of();
     }
 }

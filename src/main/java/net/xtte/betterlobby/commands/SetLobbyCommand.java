@@ -32,27 +32,23 @@ public class SetLobbyCommand implements CommandExecutor {
             return true;
         }
 
-        String lobbyName = args.length >= 1 ? args[0] : plugin.getConfigManager().getDefaultLobby();
-        String key = lobbyName.toLowerCase();
-
         Location loc = player.getLocation();
         TeleportPoint point = new TeleportPoint(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(),
                 loc.getYaw(), loc.getPitch());
         String serverName = plugin.getConfigManager().getServerName();
 
-        LobbyLocation lobby = new LobbyLocation(lobbyName, serverName, point);
+        LobbyLocation lobby = new LobbyLocation("default", serverName, point);
 
         plugin.getDbExecutor().execute(() -> {
             try {
-                plugin.getStorageManager().saveLobby(lobbyName, serverName, point);
-                plugin.getLobbyCache().put(key, lobby);
+                plugin.getStorageManager().saveDefaultLobby(serverName, point);
+                plugin.setDefaultLobby(lobby);
             } catch (Exception e) {
                 plugin.getLogger().warning("儲存 Lobby 失敗: " + e.getMessage());
             }
         });
 
-        MessageUtil.send(player, plugin.getConfigManager().get("setlobby.success",
-                Map.of("lobby", lobbyName)));
+        MessageUtil.send(player, plugin.getConfigManager().get("setlobby.success"));
         return true;
     }
 }

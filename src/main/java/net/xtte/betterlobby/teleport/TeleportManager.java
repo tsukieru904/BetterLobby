@@ -132,7 +132,7 @@ public class TeleportManager {
         if (lobby.getServer().equalsIgnoreCase(currentServer)) {
             teleportLocally(player, lobby.getPoint());
             MessageUtil.send(player, plugin.getConfigManager().get("teleport.success",
-                    Map.of("lobby", lobby.getName())));
+                    Map.of("lobby", "Lobby")));
         } else {
             // 跨伺服器：先寫入待處理傳送紀錄，再請求代理轉移玩家
             UUID uuid = player.getUniqueId();
@@ -179,7 +179,7 @@ public class TeleportManager {
                         player.getScheduler().run(plugin, task -> {
                             teleportLocally(player, point);
                             MessageUtil.send(player, plugin.getConfigManager().get("teleport.success",
-                                    Map.of("lobby", plugin.getConfigManager().getDefaultLobby())));
+                                    Map.of("lobby", "Lobby")));
                         }, () -> {
                         }));
             } catch (Exception e) {

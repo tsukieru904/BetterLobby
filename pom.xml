@@ -11,8 +11,8 @@
 
     <properties>
         <!-- Minecraft 26.1.x 的 class 檔需求版本較新，故使用 Java 25 -->
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -34,9 +34,7 @@
         <dependency>
             <groupId>org.purpurmc.purpur</groupId>
             <artifactId>purpur-api</artifactId>
-            <!-- 2026 起 Paper/Purpur 改用 <mcversion>.build.<build>-<status> 版本格式，
-                 此範圍寫法會自動解析成 26.1.2 的最新可用 build -->
-            <version>[26.1.2.build,)</version>
+            <version>26.1.2.build.2592-stable</version>
             <scope>provided</scope>
         </dependency>
 
